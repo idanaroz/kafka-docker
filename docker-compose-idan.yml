@@ -1,0 +1,27 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    build: .
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.1.21
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  producer_server:
+    image: idanaroz/kafka-server-producer
+    ports:
+      - "8080:8080"
+    environment:
+      kafka_bootstrapServer: 192.168.1.21:9092
+  consumer_worker:
+    image:
+      idanaroz/kafka-consumer
+    environment:
+      kafka_bootstrapServer: 192.168.1.21:9092
